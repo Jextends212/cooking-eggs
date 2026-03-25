@@ -1,0 +1,25 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /chat",
+  "rawPath": "/chat",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json",
+    "host": "localhost:3000"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/chat",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "127.0.0.1",
+      "userAgent": "curl/7.68.0"
+    },
+    "routeKey": "POST /chat",
+    "stage": "$default",
+    "time": "12/Mar/2026:10:15:23 +0000",
+    "timeEpoch": 1488310523220
+  },
+  "body": "{\"access_token\": \"test-token\", \"message\": \"Hola chef, tengo pollo, arroz y tomates. ¿Qué puedo cocinar?\"}",
+  "isBase64Encoded": false
+}

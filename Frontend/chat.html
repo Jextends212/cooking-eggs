@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥚Cooking Eggs — Personal Cheff</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yolk:    #F5A623;
+    --tomato:  #E8442A;
+    --herb:    #2D6A4F;
+    --cream:   #FDF8F0;
+    --dark:    #1A1208;
+    --warm:    #F7E9D0;
+    --muted:   #8B7355;
+    --white:   #FFFFFF;
+    --border:  #EDE5D8;
+    --sidebar: 280px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ══════════════════════════════════════
+     SIDEBAR
+  ══════════════════════════════════════ */
+  .sidebar {
+    width: var(--sidebar);
+    background: var(--dark);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    z-index: 100;
+  }
+
+  .sidebar-header {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .sidebar-brand span { font-size: 1.6rem; }
+
+  .sidebar-brand h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .sidebar-brand h2 em { color: var(--yolk); font-style: italic; }
+
+  .btn-new-chat {
+    width: 100%;
+    margin: 14px 0 8px;
+    padding: 11px 16px;
+    background: linear-gradient(135deg, var(--yolk), var(--tomato));
+    border: none;
+    border-radius: 10px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-new-chat:hover { opacity: 0.9; }
+
+  .sidebar-section-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.3);
+    padding: 12px 18px 6px;
+  }
+
+  .conversations-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 10px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+
+  .conversations-list::-webkit-scrollbar { width: 4px; }
+  .conversations-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .conv-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+   
+  }
+
+  .conv-item:hover { background: rgba(255,255,255,0.06); }
+  .conv-item.active { background: rgba(245,166,35,0.12); }
+
+  .conv-item-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  .conv-item-text {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .conv-item-title {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .conv-item.active .conv-item-title { color: var(--yolk); }
+
+  .conv-item-date {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .conv-delete-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.2);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .conv-item:hover .conv-delete-btn { opacity: 1; }
+  .conv-delete-btn:hover { color: var(--tomato); background: rgba(232,68,42,0.1); }
+
+  .conv-empty {
+    text-align: center;
+    padding: 30px 16px;
+    color: rgba(255,255,255,0.25);
+    font-size: 0.85rem;
+  }
+
+  /* SIDEBAR BOTTOM */
+  .sidebar-bottom {
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding: 12px 10px;
+  }
+
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .user-card:hover { background: rgba(255,255,255,0.06); }
+
+  .user-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--yolk), var(--tomato));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; overflow: hidden; }
+
+  .user-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .user-role {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .sidebar-actions {
+    display: flex;
+    gap: 4px;
+    padding: 4px 10px 8px;
+  }
+
+  .sidebar-action-btn {
+    flex: 1;
+    padding: 8px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .sidebar-action-btn:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+  .sidebar-action-btn.logout:hover { background: rgba(232,68,42,0.1); color: var(--tomato); border-color: rgba(232,68,42,0.2); }
+
+  /* ══════════════════════════════════════
+     MAIN CHAT AREA
+  ══════════════════════════════════════ */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--cream);
+  }
+
+  /* TOP BAR */
+  .topbar {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--white);
+    flex-shrink: 0;
+  }
+
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--dark);
+    padding: 4px;
+  }
+
+  .topbar-title {
+    flex: 1;
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-badge {
+    background: var(--warm);
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* MESSAGES */
+  .messages-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .messages-area::-webkit-scrollbar { width: 5px; }
+  .messages-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* WELCOME */
+  .welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 16px;
+  }
+
+  .welcome-icon {
+    font-size: 4rem;
+    animation: wiggle 3s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0%,100% { transform: rotate(-5deg); }
+    50%     { transform: rotate(5deg); }
+  }
+
+  .welcome-screen h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .welcome-screen p {
+    color: var(--muted);
+    max-width: 400px;
+    line-height: 1.6;
+  }
+
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .suggestion-chip {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .suggestion-chip:hover {
+    border-color: var(--yolk);
+    color: var(--dark);
+    background: var(--warm);
+  }
+
+  /* MESSAGE BUBBLES */
+  .message {
+    display: flex;
+    gap: 10px;
+    max-width: 75%;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(10px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  .message.user { align-self: flex-end; flex-direction: row-reverse; }
+  .message.assistant { align-self: flex-start; }
+
+  .msg-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .message.user .msg-avatar {
+    background: linear-gradient(135deg, var(--yolk), var(--tomato));
+  }
+
+  .message.assistant .msg-avatar {
+    background: var(--dark);
+  }
+
+  .msg-bubble {
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  .message.user .msg-bubble {
+    background: linear-gradient(135deg, var(--yolk), var(--tomato));
+    color: var(--white);
+    border-bottom-right-radius: 4px;
+  }
+
+  .message.assistant .msg-bubble {
+    background: var(--white);
+    color: var(--dark);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg-bubble pre {
+    white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Botón guardar receta */
+  .save-recipe-btn {
+    margin-top: 10px;
+    padding: 6px 14px;
+    background: var(--warm);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--herb);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .save-recipe-btn:hover { background: var(--herb); color: var(--white); border-color: var(--herb); }
+  .save-recipe-btn.saved { background: var(--herb); color: var(--white); border-color: var(--herb); cursor: default; }
+
+  .msg-time {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  .message.user .msg-time { text-align: left; }
+
+  /* TYPING INDICATOR */
+  .typing-indicator {
+    display: none;
+    align-self: flex-start;
+    gap: 10px;
+  }
+
+  .typing-indicator.active { display: flex; }
+
+  .typing-bubble {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .typing-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: typingDot 1.4s ease-in-out infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingDot {
+    0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+    30%          { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* INPUT AREA */
+  .input-area {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--white);
+    flex-shrink: 0;
+  }
+
+  .input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrapper:focus-within { border-color: var(--yolk); }
+
+  #message-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--dark);
+    resize: none;
+    outline: none;
+    max-height: 120px;
+    line-height: 1.5;
+  }
+
+  #message-input::placeholder { color: var(--muted); }
+
+  .send-btn {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--yolk), var(--tomato));
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .input-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  /* ══════════════════════════════════════
+     PROFILE PANEL
+  ══════════════════════════════════════ */
+  .profile-panel {
+    width: 320px;
+    background: var(--white);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    flex-shrink: 0;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 90;
+  }
+
+  .profile-panel.open {
+    transform: translateX(0);
+    position: relative;
+  }
+
+  .profile-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .profile-header h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .close-profile {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 4px;
+  }
+
+  .close-profile:hover { color: var(--dark); }
+
+  .profile-avatar-section {
+    padding: 24px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .profile-avatar-big {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--yolk), var(--tomato));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 12px;
+  }
+
+  .profile-username {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .profile-email {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .profile-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .profile-section h4 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .profile-field {
+    margin-bottom: 12px;
+  }
+
+  .profile-field label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 5px;
+  }
+
+  .profile-field input,
+  .profile-field textarea,
+  .profile-field select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: var(--dark);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .profile-field input:focus,
+  .profile-field textarea:focus { border-color: var(--yolk); }
+  .profile-field textarea { resize: none; height: 70px; }
+
+  .btn-save-profile {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--yolk), var(--tomato));
+    border: none;
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-save-profile:hover { opacity: 0.9; }
+
+  /* FAVORITES */
+  .favorite-item {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .favorite-item h5 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 4px;
+    padding-right: 24px;
+  }
+
+  .favorite-item p {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .fav-delete {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px;
+    transition: color 0.2s;
+  }
+
+  .fav-delete:hover { color: var(--tomato); }
+
+  .fav-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  /* OVERLAY */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 80;
+  }
+
+  .overlay.active { display: block; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--dark);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    transition: transform 0.3s ease;
+    z-index: 200;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* LOGOUT MODAL */
+  .logout-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logout-modal.active { display: flex; animation: fadeIn 0.2s ease; }
+
+  .logout-modal-content {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .logout-modal-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .logout-modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 10px;
+  }
+
+  .logout-modal-text {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .logout-modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .logout-btn-cancel,
+  .logout-btn-confirm {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .logout-btn-cancel {
+    background: var(--warm);
+    color: var(--dark);
+    border: 1.5px solid var(--border);
+  }
+
+  .logout-btn-cancel:hover { background: var(--white); }
+
+  .logout-btn-confirm {
+    background: linear-gradient(135deg, var(--yolk), var(--tomato));
+    color: var(--white);
+  }
+
+  .logout-btn-confirm:hover { opacity: 0.9; }
+
+  /* RECIPE MODAL */
+  .recipe-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .recipe-modal.active { display: flex; animation: fadeIn 0.2s ease; }
+
+  .recipe-modal-content {
+    background: var(--white);
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .recipe-modal-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--white);
+  }
+
+  .recipe-modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .recipe-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .recipe-modal-close:hover { color: var(--dark); }
+
+  .recipe-modal-body {
+    padding: 24px;
+  }
+
+  .recipe-content {
+    white-space: pre-wrap;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--dark);
+  }
+
+  /* PASSWORD CHANGE MODAL */
+  .password-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .password-modal.active { display: flex; animation: fadeIn 0.2s ease; }
+
+  .password-modal-content {
+    background: var(--white);
+    border-radius: 16px;
+    max-width: 500px;
+    width: 90%;
+    padding: 40px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .password-modal-header {
+    margin-bottom: 30px;
+  }
+
+  .password-modal-header h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .password-modal-header p {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .password-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--muted);
+  }
+
+  .password-modal-close:hover { color: var(--dark); }
+
+  .password-form-group {
+    margin-bottom: 20px;
+  }
+
+  .password-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: var(--dark);
+  }
+
+  .password-form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s;
+  }
+
+  .password-form-group input:focus {
+    outline: none;
+    border-color: var(--yolk);
+  }
+
+  .password-modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .password-modal-actions button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .password-btn-confirm {
+    background: var(--yolk);
+    color: white;
+  }
+
+  .password-btn-confirm:hover { background: #E6921D; }
+
+  .password-btn-cancel {
+    background: #f0f0f0;
+    color: var(--dark);
+  }
+
+  .password-btn-cancel:hover { background: #e0e0e0; }
+
+  .password-message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+  }
+
+  .password-message.error {
+    background: #F8D7DA;
+    color: #721C24;
+    border: 1px solid #F5C6CB;
+  }
+
+  .password-message.success {
+    background: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      transform: translateX(-100%);
+      z-index: 200;
+    }
+
+    .sidebar.open { transform: translateX(0); }
+
+    .menu-toggle { display: block; }
+
+    .message { max-width: 90%; }
+
+    .profile-panel {
+      position: fixed;
+      right: 0; top: 0;
+      width: 100%;
+      max-width: 360px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .profile-panel {
+      position: relative;
+      transform: translateX(0);
+    }
+
+    .profile-panel:not(.open) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- OVERLAY (mobile) -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div style="padding: 0 10px">
+    <div class="sidebar-header" style="padding: 20px 8px 16px">
+      <a class="sidebar-brand" href="#">
+        <span>🍳</span>
+        <h2>Cooking <em>Eggs</em></h2>
+      </a>
+    </div>
+
+    <button class="btn-new-chat" onclick="newChat()">
+      ✏️ Nueva conversación
+    </button>
+  </div>
+
+  <div class="sidebar-section-title">Conversaciones</div>
+
+  <div class="conversations-list" id="conversations-list">
+    <div class="conv-empty">Aún no tienes conversaciones.<br>¡Empieza chateando con el Chef! 🍳</div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-card" onclick="openProfile()">
+      <div class="user-avatar" id="sidebar-avatar">👨‍🍳</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-username">Chef</div>
+        <div class="user-role">Usuario</div>
+      </div>
+      <span style="color:rgba(255,255,255,0.3); font-size:0.9rem">⚙️</span>
+    </div>
+    <div class="sidebar-actions">
+      <button class="sidebar-action-btn" onclick="openProfile()">👤 Perfil</button>
+      <button class="sidebar-action-btn logout" onclick="handleLogout()">🚪 Salir</button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-title" id="topbar-title">Chef Personal 🍳</div>
+    <span class="topbar-badge">🤖 IA Culinaria</span>
+    <button onclick="openProfile()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;padding:4px" title="Mi perfil">👤</button>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="messages-area" id="messages-area">
+    <div class="welcome-screen" id="welcome-screen">
+      <div class="welcome-icon">👨‍🍳</div>
+      <h2>¡Hola, <span id="welcome-name">Chef</span>! 👋</h2>
+      <p>Soy Tu Chef Personal, tu asistente culinario. Pregúntame sobre recetas, técnicas de cocina o qué hacer con los ingredientes que tienes.</p>
+      <div class="suggestions">
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">🥚 ¿Qué recetas puedo hacer con huevos?</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">🍝 Pasta Carbonara</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">🥗 Ensalada Cesar</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">🍰 Postre fácil</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">🥩 Lomo salteado</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">🌮 Tacos de Birria</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">💡 Dame un consejo de cocina</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPING INDICATOR -->
+  <div class="typing-indicator" id="typing-indicator" style="padding: 0 20px 8px; display:none">
+    <div class="msg-avatar" style="background:var(--dark); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem">👨‍🍳</div>
+    <div class="typing-bubble">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-area">
+    <div class="input-wrapper">
+      <textarea id="message-input" placeholder="Pregúntale algo al Chef Claude... 🍳" rows="1"
+        onkeydown="handleKeydown(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">🍳</button>
+    </div>
+    <div class="input-hint">Enter para enviar mensaje · Shift+Enter para nueva línea</div>
+  </div>
+</main>
+
+<!-- PROFILE PANEL -->
+<div class="profile-panel" id="profile-panel">
+  <div class="profile-header">
+    <h3>Mi Perfil 👨‍🍳</h3>
+    <button class="close-profile" onclick="closeProfile()">✕</button>
+  </div>
+
+  <div class="profile-avatar-section">
+    <div class="profile-avatar-big" id="profile-avatar-big">👨‍🍳</div>
+    <div class="profile-username" id="profile-username-display">Chef</div>
+    <div class="profile-email" id="profile-email-display">—</div>
+  </div>
+
+  <div class="profile-section">
+    <h4>Información</h4>
+    <div class="profile-field">
+      <label>Avatar</label>
+      <select id="profile-avatar-select" onchange="updateAvatarPreview()">
+        <option value="👨‍🍳">👨‍🍳 Chef</option>
+        <option value="👩‍🍳">👩‍🍳 Chefa</option>
+        <option value="🐣">🐣 Pollito Cocinero</option>
+        <option value="🍆">🍆 Berenjena Sospechosa</option>
+        <option value="🐼">🐼 Osito</option>
+        <option value="🧜‍♀️">🧜‍♀️ Sirena</option>
+        <option value="👩‍🦰">👩‍🦰 Pequitas</option>
+        <option value="🥑">🥑 Palta?</option>
+        <option value="🛸">🛸 Nave Extraterrestre</option>
+        <option value="⛄">⛄ Muñeco de nieve encantado</option>
+        <option value="⚗️">⚗️ Breaking-Food</option>
+        <option value="👩‍🎓">👩‍🎓 Estudiante</option>
+        <option value="🤖">🤖 Androide</option>
+        <option value="🥚">🥚 Huevón</option>
+        <option value="🗿">🗿 Piedra rara</option>
+        <option value="🧚">🧚 Hada</option>
+
+      </select>
+    </div>
+    <div class="profile-field">
+      <label>Bio</label>
+      <textarea id="profile-bio" placeholder="Cuéntanos sobre ti y tus gustos culinarios..."></textarea>
+    </div>
+    <div class="profile-field">
+      <label>Cocina favorita</label>
+      <input type="text" id="profile-cuisine" placeholder="Ej: Italiana, Mexicana, Asiática...">
+    </div>
+    <button class="btn-save-profile" onclick="saveProfile()">💾 Guardar cambios</button>
+  </div>
+
+  <div class="profile-section">
+    <h4>🔒 Seguridad</h4>
+    <button class="btn-save-profile" style="background: #E8442A;" onclick="openChangePassword()">
+      Cambiar contraseña 🔑
+    </button>
+    <p style="font-size: 12px; color: #666; margin-top: 10px;">
+      Usa este botón para actualizar tu contraseña de forma segura
+    </p>
+  </div>
+    <div id="favorites-list">
+      <div class="fav-empty">Aún no tienes recetas favoritas.<br>Guarda una receta del chat 💚</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LOGOUT MODAL -->
+<div class="logout-modal" id="logout-modal">
+  <div class="logout-modal-content">
+    <span class="logout-modal-icon">🚪</span>
+    <h3 class="logout-modal-title">¿Cerrar sesión?</h3>
+    <p class="logout-modal-text">Se guardará toda tu información. Puedes volver cuando quieras.</p>
+    <div class="logout-modal-actions">
+      <button class="logout-btn-cancel" onclick="closeLogoutModal()">Cancelar</button>
+      <button class="logout-btn-confirm" onclick="confirmLogout()">Salir de la cocina</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECIPE MODAL -->
+<div class="recipe-modal" id="recipe-modal">
+  <div class="recipe-modal-content">
+    <div class="recipe-modal-header">
+      <h3 class="recipe-modal-title" id="recipe-title">🍽️ Receta</h3>
+      <button class="recipe-modal-close" onclick="closeRecipeModal()">✕</button>
+    </div>
+    <div class="recipe-modal-body">
+      <div class="recipe-content" id="recipe-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD CHANGE MODAL -->
+<div class="password-modal" id="password-modal">
+  <div class="password-modal-content">
+    <button class="password-modal-close" onclick="closePasswordModal()">✕</button>
+    <div class="password-modal-header">
+      <h3>🔒 Cambiar contraseña</h3>
+      <p>Ingresa tu contraseña actual y la nueva que deseas usar</p>
+    </div>
+    <div id="password-message-container"></div>
+    <form onsubmit="changePassword(event)" id="password-form">
+      <div class="password-form-group">
+        <label>Contraseña actual</label>
+        <input type="password" id="current-password" placeholder="Tu contraseña actual" required>
+      </div>
+      <div class="password-form-group">
+        <label>Nueva contraseña</label>
+        <input type="password" id="new-password" placeholder="Mín. 8 caracteres" required>
+      </div>
+      <div class="password-form-group">
+        <label>Confirmar nueva contraseña</label>
+        <input type="password" id="confirm-new-password" placeholder="Repite tu nueva contraseña" required>
+      </div>
+      <div class="password-modal-actions">
+        <button type="button" class="password-btn-cancel" onclick="closePasswordModal()">Cancelar</button>
+        <button type="submit" class="password-btn-confirm">Actualizar contraseña</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const API_URL     = "https://4ylr6wwnpg.execute-api.us-east-2.amazonaws.com";
+  const token       = localStorage.getItem('access_token');
+  const userId      = localStorage.getItem('user_id') || localStorage.getItem('sub') || '';
+  const userName    = localStorage.getItem('user_name') || localStorage.getItem('username') || 'Chef';
+  const userEmail   = localStorage.getItem('user_email') || '';
+  const authMethod  = localStorage.getItem('auth_method') || 'cognito'; // 'cognito' o 'db'
+  let userAvatar = localStorage.getItem('user_avatar') || '👨‍🍳';
+
+  let currentConvId    = null;
+  let isTyping         = false;
+  let conversationsList = [];
+
+  // ── GUARD ────────────────────────────────────────
+  if (!token) window.location.href = 'index.html';
+
+  // ── INIT ─────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('sidebar-username').textContent = userName;
+    document.getElementById('welcome-name').textContent     = userName.split(' ')[0];
+    document.getElementById('profile-username-display').textContent = userName;
+    document.getElementById('profile-email-display').textContent    = userEmail;
+    loadConversations();
+    loadProfile();
+  });
+
+  // ── CONVERSATIONS ─────────────────────────────────
+  async function loadConversations() {
+    try {
+      const res  = await fetch(`${API_URL}/history`, {
+        headers: { 'access-token': token, 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      conversationsList = data.conversations || [];
+      renderConversations();
+    } catch (e) { console.error('Error cargando conversaciones:', e); }
+  }
+
+  function renderConversations() {
+    const list = document.getElementById('conversations-list');
+    if (!conversationsList.length) {
+      list.innerHTML = '<div class="conv-empty">Aún no tienes conversaciones.<br>¡Empieza chateando con el Chef! 🍳</div>';
+      return;
+    }
+
+    list.innerHTML = conversationsList.map(c => `
+      <div class="conv-item ${c.id == currentConvId ? 'active' : ''}" onclick="loadConversation(${c.id}, '${escHtml(c.title)}')">
+        <span class="conv-item-icon">💬</span>
+        <div class="conv-item-text">
+          <div class="conv-item-title">${escHtml(c.title)}</div>
+          <div class="conv-item-date">${formatDate(c.updated_at)}</div>
+        </div>
+        <button class="conv-delete-btn" onclick="deleteConversation(event, ${c.id})" title="Eliminar">🗑️</button>
+      </div>
+    `).join('');
+  }
+
+  async function loadConversation(convId, title) {
+    currentConvId = convId;
+    document.getElementById('topbar-title').textContent = title;
+    renderConversations();
+
+    const welcomeScreen = document.getElementById('welcome-screen');
+    if (welcomeScreen) welcomeScreen.remove();
+
+    try {
+      const res  = await fetch(`${API_URL}/history/${convId}`, {
+        headers: { 'access-token': token }
+      });
+      const data = await res.json();
+
+      const area = document.getElementById('messages-area');
+      area.innerHTML = '';
+
+      (data.messages || []).forEach(m => {
+        appendMessage(m.role, m.content, false);
+      });
+
+      area.scrollTop = area.scrollHeight;
+    } catch(e) { console.error(e); }
+
+    // Cerrar sidebar en mobile
+    if (window.innerWidth < 768) closeSidebar();
+  }
+
+  async function deleteConversation(e, convId) {
+    e.stopPropagation();
+    if (!confirm('¿Eliminar esta conversación?')) return;
+
+    try {
+      const res = await fetch(`${API_URL}/history/${convId}`, {
+        method: 'DELETE',
+        headers: { 'access-token': token }
+      });
+
+      if (res.ok) {
+        conversationsList = conversationsList.filter(c => c.id != convId);
+        if (currentConvId == convId) newChat();
+        renderConversations();
+        showToast('Conversación eliminada 🗑️');
+      }
+    } catch(e) { console.error(e); }
+  }
+
+  function newChat() {
+    currentConvId = null;
+    document.getElementById('topbar-title').textContent = 'Chef Claude 🍳';
+    const area = document.getElementById('messages-area');
+    area.innerHTML = `
+      <div class="welcome-screen" id="welcome-screen">
+        <div class="welcome-icon">${userAvatar}</div>
+        <h2>¡Hola, <span>${userName.split(' ')[0]}</span>!</h2>
+        <p>Soy tu Cheff personal, tu asistente culinario. Pregúntame sobre recetas, técnicas de cocina o qué hacer con los ingredientes que tienes.</p>
+        <div class="suggestions">
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">🥚 ¿Qué recetas puedo hacer con huevos?</div>
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">🍝 Pasta Carbonara</div>
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">🥗 Ensalada Cesar</div>
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">🍰 Postre fácil</div>
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">🥩 Lomo salteado</div>
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">🌮 Tacos de Birria</div>
+          <div class="suggestion-chip" onclick="sendSuggestion(this)">💡 Dame un consejo de cocina</div>
+      </div>`;
+    renderConversations();
+    if (window.innerWidth < 768) closeSidebar();
+  }
+
+  // ── SEND MESSAGE ──────────────────────────────────
+  async function sendMessage() {
+    const input   = document.getElementById('message-input');
+    const message = input.value.trim();
+    if (!message || isTyping) return;
+
+    // Quitar welcome screen
+    const welcome = document.getElementById('welcome-screen');
+    if (welcome) welcome.remove();
+
+    input.value = '';
+    autoResize(input);
+
+    appendMessage('user', message);
+    showTyping(true);
+    isTyping = true;
+    document.getElementById('send-btn').disabled = true;
+
+    try {
+      const body = { access_token: token, message };
+      if (currentConvId) body.conversation_id = currentConvId;
+
+      const res  = await fetch(`${API_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+
+      if (data.conversation_id && !currentConvId) {
+        currentConvId = data.conversation_id;
+        // Actualizar topbar con primeras palabras
+        const title = message.length > 40 ? message.substring(0, 40) + '...' : message;
+        document.getElementById('topbar-title').textContent = title;
+        loadConversations();
+      }
+
+      showTyping(false);
+      appendMessage('assistant', data.response || 'Lo siento, hubo un error 😞');
+
+    } catch(e) {
+      showTyping(false);
+      appendMessage('assistant', 'Error de conexión. Intenta de nuevo 🔌');
+    } finally {
+      isTyping = false;
+      document.getElementById('send-btn').disabled = false;
+    }
+  }
+
+  function sendSuggestion(el) {
+    document.getElementById('message-input').value = el.textContent.replace(/^[^\w\s¿¡]+\s*/, '').trim();
+    sendMessage();
+  }
+
+  function appendMessage(role, content, scroll = true) {
+    const area    = document.getElementById('messages-area');
+    const isUser  = role === 'user';
+    const time    = new Date().toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' });
+    
+
+    const hasRecipe = !isUser && (content.includes('🍽️') || content.includes('Ingredientes') || content.includes('⏱️'));
+
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    div.innerHTML = `
+      <div class="msg-avatar">${isUser ? userAvatar : '👨‍🍳'}</div>
+      <div>
+        <div class="msg-bubble">
+          <pre>${escHtml(content)}</pre>
+          ${hasRecipe ? `<button class="save-recipe-btn" onclick="saveRecipeFromMessage(this, '${btoa(encodeURIComponent(content))}')">💚 Guardar receta</button>` : ''}
+        </div>
+        <div class="msg-time">${time}</div>
+      </div>`;
+
+    area.appendChild(div);
+    if (scroll) area.scrollTop = area.scrollHeight;
+  }
+
+  function showTyping(show) {
+    const indicator = document.getElementById('typing-indicator');
+    indicator.style.display = show ? 'flex' : 'none';
+    if (show) document.getElementById('messages-area').scrollTop = document.getElementById('messages-area').scrollHeight;
+  }
+
+  // ── SAVE RECIPE ───────────────────────────────────
+  async function saveRecipeFromMessage(btn, encodedContent) {
+    if (btn.classList.contains('saved')) return;
+
+    const content = decodeURIComponent(atob(encodedContent));
+    const lines   = content.split('\n');
+    const title   = lines.find(l => l.includes('🍽️'))?.replace('🍽️', '').trim() || 'Receta guardada';
+    const time    = lines.find(l => l.includes('⏱️'))?.replace('⏱️', '').replace('Tiempo:', '').trim() || '';
+
+    try {
+      const res = await fetch(`${API_URL}/profile/favorites`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'access-token': token },
+        body: JSON.stringify({
+          title,
+          ingredients: content,
+          steps:       content,
+          prep_time:   time
+        })
+      });
+
+      if (res.ok) {
+        btn.classList.add('saved');
+        btn.textContent = '✅ Guardada';
+        // Mostrar nombre de la receta en el toast
+        showToast(`✅ "${title}" guardada en favoritos 💚`);
+        loadFavorites();
+      } else {
+        showToast(`Error: ${res.statusText}`);
+      }
+    } catch(e) { showToast('Error al guardar receta ❌'); }
+  }
+
+  // ── PROFILE ───────────────────────────────────────
+  function openProfile() {
+    document.getElementById('profile-panel').classList.add('open');
+    if (window.innerWidth < 768) document.getElementById('overlay').classList.add('active');
+  }
+
+  function closeProfile() {
+    document.getElementById('profile-panel').classList.remove('open');
+    document.getElementById('overlay').classList.remove('active');
+  }
+
+  async function loadProfile() {
+    try {
+      const res  = await fetch(`${API_URL}/profile`, {
+        headers: { 'access-token': token }
+      });
+      const data = await res.json();
+
+      if (data.avatar_emoji) {
+        localStorage.setItem('user_avatar', data.avatar_emoji);
+        document.getElementById('profile-avatar-select').value = data.avatar_emoji;
+        document.getElementById('profile-avatar-big').textContent = data.avatar_emoji;
+        document.getElementById('sidebar-avatar').textContent     = data.avatar_emoji;
+      }
+      if (data.bio)             document.getElementById('profile-bio').value     = data.bio;
+      if (data.favorite_cuisine) document.getElementById('profile-cuisine').value = data.favorite_cuisine;
+
+    } catch(e) { console.error(e); }
+
+    loadFavorites();
+  }
+
+  function updateAvatarPreview() {
+    const emoji = document.getElementById('profile-avatar-select').value;
+    userAvatar = emoji;
+    document.getElementById('profile-avatar-big').textContent = emoji;
+    document.getElementById('sidebar-avatar').textContent     = emoji;
+  }
+
+  async function saveProfile() {
+    const body = {
+      avatar_emoji:     document.getElementById('profile-avatar-select').value,
+      bio:              document.getElementById('profile-bio').value,
+      favorite_cuisine: document.getElementById('profile-cuisine').value
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'access-token': token },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        showToast('Perfil actualizado ✅');
+        loadProfile(); // Recargar perfil después de guardar
+      }
+      else        showToast('Error al guardar perfil ❌');
+    } catch(e) { showToast('Error de conexión ❌'); }
+  }
+
+  async function loadFavorites() {
+    try {
+      const res  = await fetch(`${API_URL}/profile/favorites`, {
+        headers: { 'access-token': token }
+      });
+      const data = await res.json();
+      renderFavorites(data.favorites || []);
+    } catch(e) { console.error(e); }
+  }
+
+  function renderFavorites(favs) {
+    const list = document.getElementById('favorites-list');
+    if (!favs.length) {
+      list.innerHTML = '<div class="fav-empty">Aún no tienes recetas favoritas.<br>Guarda una receta del chat 💚</div>';
+      return;
+    }
+
+    list.innerHTML = favs.map(f => `
+      <div class="favorite-item" onclick="openRecipeModal('${btoa(encodeURIComponent(JSON.stringify(f)))}')" title="Click para ver receta completa">
+        <button class="fav-delete" onclick="deleteFavoriteClick(event, ${f.id})" title="Eliminar receta">🗑️</button>
+        <h5 style="cursor:pointer;color:var(--herb);margin-bottom:6px">🍽️ ${escHtml(f.title)}</h5>
+        ${f.prep_time ? `<p style="margin:4px 0;font-size:0.85rem">⏱️ ${escHtml(f.prep_time)}</p>` : ''}
+        <p style="margin-top:6px; font-size:0.72rem; color:var(--muted)">${formatDate(f.created_at)}</p>
+      </div>
+    `).join('');
+  }
+
+  function deleteFavoriteClick(e, recipeId) {
+    e.stopPropagation();
+    deleteFavorite(recipeId);
+  }
+
+  function openRecipeModal(encodedRecipe) {
+    const recipe = JSON.parse(decodeURIComponent(atob(encodedRecipe)));
+    const title = recipe.title || 'Receta';
+    const content = recipe.ingredients || recipe.steps || 'Contenido no disponible';
+    
+    document.getElementById('recipe-title').textContent = '🍽️ ' + escHtml(title);
+    document.getElementById('recipe-content').innerHTML = escHtml(content).replace(/\n/g, '<br>');
+    document.getElementById('recipe-modal').classList.add('active');
+    
+    // Log para debugging
+    console.log('📖 Receta abierta:', title);
+  }
+
+  function closeRecipeModal() {
+    document.getElementById('recipe-modal').classList.remove('active');
+  }
+
+  // Cerrar modal al hacer click fuera
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('recipe-modal');
+    if (e.target === modal) closeRecipeModal();
+  });
+
+  async function deleteFavorite(recipeId) {
+    try {
+      const res = await fetch(`${API_URL}/profile/favorites/${recipeId}`, {
+        method: 'DELETE',
+        headers: { 'access-token': token }
+      });
+      if (res.ok) { showToast('Receta eliminada 🗑️'); loadFavorites(); }
+    } catch(e) { console.error(e); }
+  }
+
+  // ── CAMBIO DE CONTRASEÑA ─────────────────────────
+  function openChangePassword() {
+    document.getElementById('password-modal').classList.add('active');
+    document.getElementById('password-form').reset();
+    document.getElementById('password-message-container').innerHTML = '';
+  }
+
+  function closePasswordModal() {
+    document.getElementById('password-modal').classList.remove('active');
+    document.getElementById('password-form').reset();
+    document.getElementById('password-message-container').innerHTML = '';
+  }
+
+  async function changePassword(event) {
+    event.preventDefault();
+    
+    const oldPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-new-password').value;
+    const messageContainer = document.getElementById('password-message-container');
+
+    // Validaciones básicas
+    if (!oldPassword || !newPassword) {
+      messageContainer.innerHTML = '<div class="password-message error">Por favor completa todos los campos</div>';
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      messageContainer.innerHTML = '<div class="password-message error">La contraseña debe tener mínimo 8 caracteres</div>';
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      messageContainer.innerHTML = '<div class="password-message error">Las contraseñas no coinciden</div>';
+      return;
+    }
+
+    if (oldPassword === newPassword) {
+      messageContainer.innerHTML = '<div class="password-message error">La nueva contraseña debe ser diferente a la actual</div>';
+      return;
+    }
+
+    // Validar fortaleza de contraseña (sin Cognito a veces es más permisivo)
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumbers = /[0-9]/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};:'",.<>?/\\|`~]/.test(newPassword);
+
+    if (!hasUppercase || !hasLowercase || !hasNumbers || !hasSpecial) {
+      let required = [];
+      if (!hasUppercase) required.push('mayúsculas (A-Z)');
+      if (!hasLowercase) required.push('minúsculas (a-z)');
+      if (!hasNumbers) required.push('números (0-9)');
+      if (!hasSpecial) required.push('caracteres especiales (!@#$%)');
+      messageContainer.innerHTML = `<div class="password-message error">La contraseña debe incluir: ${required.join(', ')}</div>`;
+      return;
+    }
+
+    try {
+      const btn = event.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Procesando...';
+
+      const userId = localStorage.getItem('user_id') || '';
+      
+      // Intentar primero con Cognito (access_token disponible)
+      let payload = {
+        action: 'change_password',
+        access_token: token,
+        old_password: oldPassword,
+        new_password: newPassword
+      };
+
+      // Si no hay token (alternativa sin Cognito), usar user_id
+      if (!token && userId) {
+        payload = {
+          action: 'change_password_alt',
+          user_id: userId,
+          old_password: oldPassword,
+          new_password: newPassword
+        };
+      }
+
+      const response = await fetch(`${API_URL}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (response.ok || (response.status >= 200 && response.status < 300)) {
+        messageContainer.innerHTML = '<div class="password-message success">✅ Contraseña actualizada correctamente</div>';
+        setTimeout(() => {
+          closePasswordModal();
+          showToast(data.message || 'Contraseña actualizada ✅');
+        }, 1500);
+      } else {
+        messageContainer.innerHTML = `<div class="password-message error">${data.error || 'Error al cambiar la contraseña'}</div>`;
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Actualizar contraseña';
+    } catch(e) {
+      messageContainer.innerHTML = '<div class="password-message error">Error de conexión. Intenta de nuevo.</div>';
+      event.target.querySelector('button[type="submit"]').disabled = false;
+      event.target.querySelector('button[type="submit"]').textContent = 'Actualizar contraseña';
+    }
+  }
+
+  // Cerrar modal al hacer click fuera
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('password-modal');
+    if (e.target === modal) closePasswordModal();
+  });
+
+  // ── LOGOUT ────────────────────────────────────────
+  function handleLogout() {
+    // Log del método de autenticación usado
+    console.log('🚪 Logout - Método de autenticación:', authMethod);
+    document.getElementById('logout-modal').classList.add('active');
+  }
+
+  function closeLogoutModal() {
+    document.getElementById('logout-modal').classList.remove('active');
+  }
+
+  function confirmLogout() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+  }
+
+  // Cerrar modal si clickea fuera
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('logout-modal');
+    if (e.target === modal) closeLogoutModal();
+  });
+
+  // ── SIDEBAR TOGGLE ────────────────────────────────
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const isOpen  = sidebar.classList.contains('open');
+    if (isOpen) closeSidebar();
+    else {
+      sidebar.classList.add('open');
+      document.getElementById('overlay').classList.add('active');
+    }
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('active');
+  }
+
+  function closeAll() {
+    closeSidebar();
+    closeProfile();
+  }
+
+  // ── INPUT ─────────────────────────────────────────
+  function handleKeydown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  // ── HELPERS ───────────────────────────────────────
+  function escHtml(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 86400000) return d.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' });
+    if (diff < 604800000) return d.toLocaleDateString('es', { weekday: 'short' });
+    return d.toLocaleDateString('es', { day:'numeric', month:'short' });
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>

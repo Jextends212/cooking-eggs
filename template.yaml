@@ -1,0 +1,225 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Chatbot Recetas - Cooking Eggs
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 60
+    MemorySize: 512
+    Environment:
+      Variables:
+        DB_HOST:               !Sub "{{resolve:ssm:/chatbot/DB_HOST}}"
+        DB_PORT:               !Sub "{{resolve:ssm:/chatbot/DB_PORT}}"
+        DB_NAME:               !Sub "{{resolve:ssm:/chatbot/DB_NAME}}"
+        DB_USER:               !Sub "{{resolve:ssm:/chatbot/DB_USER}}"
+        DB_PASSWORD:           !Sub "{{resolve:ssm:/chatbot/DB_PASSWORD}}"
+        COGNITO_USER_POOL_ID:  !Sub "{{resolve:ssm:/chatbot/COGNITO_USER_POOL_ID}}"
+        COGNITO_CLIENT_ID:     !Sub "{{resolve:ssm:/chatbot/COGNITO_CLIENT_ID}}"
+        COGNITO_CLIENT_SECRET: !Sub "{{resolve:ssm:/chatbot/COGNITO_CLIENT_SECRET}}"
+        COGNITO_REGION:        us-east-2
+        BEDROCK_MODEL_ID:      us.anthropic.claude-3-5-haiku-20241022-v1:0
+        BEDROCK_REGION:        us-east-1
+
+Resources:
+
+  # ── LAYER con dependencias ──────────────────────────────
+  DependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: chatbot-dependencies
+      ContentUri: lambda_builds/python-layer/
+      CompatibleRuntimes:
+        - python3.12
+
+  # ── AUTH HANDLER ─────────────────────────────────────────
+  AuthHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: chatbot-auth-handler
+      CodeUri: Backend/lamb/
+      Handler: auth_handler.lambda_handler
+      Layers:
+        - !Ref DependenciesLayer
+      Policies:
+        - AmazonCognitoPowerUser
+      Events:
+        AuthAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /auth
+            Method: POST
+
+  # ── CHAT HANDLER ────────────────────────────────────────
+  ChatHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: chatbot-chat-handler
+      CodeUri: Backend/lamb/
+      Handler: chat_handler.lambda_handler
+      Layers:
+        - !Ref DependenciesLayer
+      Policies:
+        - AmazonBedrockFullAccess
+        - AmazonRDSFullAccess
+        - AmazonCognitoPowerUser
+      Events:
+        ChatAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /chat
+            Method: POST
+
+  # ── HISTORY HANDLER ─────────────────────────────────────
+  HistoryHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: chatbot-history-handler
+      CodeUri: Backend/lamb/
+      Handler: history_handler.lambda_handler
+      Layers:
+        - !Ref DependenciesLayer
+      Policies:
+        - AmazonRDSFullAccess
+        - AmazonCognitoPowerUser
+      Events:
+        HistoryAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /history
+            Method: GET
+        HistoryDetailAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /history/{conv_id}
+            Method: GET
+        DeleteConvAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /history/{conv_id}
+            Method: DELETE
+
+  # ── PROFILE HANDLER ─────────────────────────────────────
+  ProfileHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: chatbot-profile-handler
+      CodeUri: Backend/lamb/
+      Handler: profile_handler.lambda_handler
+      Layers:
+        - !Ref DependenciesLayer
+      Policies:
+        - AmazonRDSFullAccess
+        - AmazonCognitoPowerUser
+      Events:
+        GetProfileAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /profile
+            Method: GET
+        UpdateProfileAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /profile
+            Method: PUT
+        GetFavoritesAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /profile/favorites
+            Method: GET
+        SaveFavoriteAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /profile/favorites
+            Method: POST
+        DeleteFavoriteAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /profile/favorites/{recipe_id}
+            Method: DELETE
+
+  # ── ADMIN HANDLER ───────────────────────────────────────
+  AdminHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: chatbot-admin-handler
+      CodeUri: Backend/lamb/
+      Handler: admin_handler.lambda_handler
+      Layers:
+        - !Ref DependenciesLayer
+      Policies:
+        - AmazonRDSFullAccess
+        - AmazonCognitoPowerUser
+      Events:
+        AdminGetAllAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /admin/conversations
+            Method: GET
+        AdminGetUserAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /admin/conversations/user/{user_id}
+            Method: GET
+        AdminDeleteAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /admin/conversations/{conv_id}
+            Method: DELETE
+        AdminGetUsersAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /admin/users
+            Method: GET
+        AdminEditUserAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /admin/users/{user_id}
+            Method: PUT
+        AdminDeleteUserAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /admin/users/{user_id}
+            Method: DELETE
+        AdminChangePasswordAPI:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ChatbotAPI
+            Path: /admin/users/{user_id}/pwd
+            Method: POST
+
+  # ── API GATEWAY ──────────────────────────────────────────
+  ChatbotAPI:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "content-type"
+          - "access-token"
+          - "access_token"
+          - "authorization"
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS

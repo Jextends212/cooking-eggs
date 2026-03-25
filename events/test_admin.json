@@ -1,0 +1,24 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /admin/conversations",
+  "rawPath": "/admin/conversations",
+  "rawQueryString": "",
+  "headers": {
+    "access_token": "test-admin-token",
+    "host": "localhost:3000"
+  },
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/admin/conversations",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "127.0.0.1",
+      "userAgent": "curl/7.68.0"
+    },
+    "routeKey": "GET /admin/conversations",
+    "stage": "$default",
+    "time": "12/Mar/2026:10:15:23 +0000",
+    "timeEpoch": 1488310523220
+  },
+  "isBase64Encoded": false
+}

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Cooking Eggs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yolk:    #F5A623;
+      --tomato:  #E8442A;
+      --herb:    #2D6A4F;
+      --cream:   #FDF8F0;
+      --dark:    #1A1208;
+      --warm:    #F7E9D0;
+      --muted:   #8B7355;
+      --white:   #FFFFFF;
+      --border:  #EDE5D8;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* TOP BAR */
+    .admin-topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: var(--dark);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 100;
+      gap: 20px;
+    }
+
+    .admin-topbar h1 {
+      font-family: 'Fraunces', serif;
+      color: var(--white);
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-topbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .admin-logout-btn {
+      padding: 8px 16px;
+      background: var(--tomato);
+      border: none;
+      border-radius: 8px;
+      color: var(--white);
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .admin-logout-btn:hover { opacity: 0.9; }
+
+    /* MAIN CONTAINER */
+    .admin-container {
+      display: flex;
+      margin-top: 60px;
+      height: calc(100vh - 60px);
+    }
+
+    /* LEFT PANEL - USERS */
+    .users-panel {
+      width: 350px;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .users-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .users-header h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--yolk);
+    }
+
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .users-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .users-list::-webkit-scrollbar { width: 4px; }
+    .users-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .user-item {
+      padding: 12px;
+      margin-bottom: 6px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--white);
+    }
+
+    .user-item:hover {
+      border-color: var(--yolk);
+      background: var(--warm);
+    }
+
+    .user-item.active {
+      border-color: var(--yolk);
+      background: linear-gradient(135deg, rgba(245,166,35,0.1), rgba(232,68,42,0.1));
+    }
+
+    .user-item-email {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-item-username {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* CENTER PANEL - CONVERSATIONS */
+    .conversations-panel {
+      width: 320px;
+      background: var(--cream);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .conv-header {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    .conv-header h2 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .conv-header p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .convs-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .convs-list::-webkit-scrollbar { width: 4px; }
+    .convs-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .conv-card {
+      padding: 12px;
+      margin-bottom: 8px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .conv-card:hover { background: var(--warm); border-color: var(--yolk); }
+
+    .conv-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .conv-date {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .conv-delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--tomato);
+      border: none;
+      color: var(--white);
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .conv-card:hover .conv-delete-btn { opacity: 1; }
+
+    .convs-empty {
+      text-align: center;
+      padding: 20px 12px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    /* RIGHT PANEL - DETAILS */
+    .details-panel {
+      flex: 1;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .details-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .details-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .details-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-edit, .btn-delete, .btn-password {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .btn-edit {
+      background: var(--warm);
+      color: var(--dark);
+    }
+
+    .btn-edit:hover { background: var(--yolk); }
+
+    .btn-password {
+      background: var(--herb);
+      color: var(--white);
+    }
+
+    .btn-password:hover { opacity: 0.9; }
+
+    .btn-delete {
+      background: var(--tomato);
+      color: var(--white);
+    }
+
+    .btn-delete:hover { opacity: 0.9; }
+
+    .details-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .details-content::-webkit-scrollbar { width: 4px; }
+    .details-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .detail-section {
+      margin-bottom: 24px;
+    }
+
+    .detail-section h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .detail-field {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background: var(--cream);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+
+    .detail-field label {
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .detail-field value {
+      color: var(--dark);
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .details-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      text-align: center;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .modal-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      display: block;
+      text-align: center;
+    }
+
+    .modal-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--dark);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .modal-text {
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 11px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-cancel {
+      background: var(--warm);
+      color: var(--dark);
+    }
+
+    .modal-btn-confirm {
+      background: var(--tomato);
+      color: var(--white);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .conversations-panel { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .conversations-panel { width: 100%; display: flex; }
+      .details-panel { display: none; }
+      .users-panel { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="admin-topbar">
+  <h1>🍳 Cooking Eggs - Admin</h1>
+  <div class="admin-topbar-right">
+    <span id="admin-email" style="color: rgba(255,255,255,0.7); font-size: 0.9rem;"></span>
+    <button class="admin-logout-btn" onclick="handleAdminLogout()">🚪 Salir</button>
+  </div>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="admin-container">
+  <!-- LEFT: USERS SEARCH & LIST -->
+  <div class="users-panel">
+    <div class="users-header">
+      <h2>👥 Usuarios</h2>
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Email o usuario..." oninput="searchUsers()">
+      </div>
+    </div>
+    <div class="users-list" id="users-list">
+      <div style="text-align:center; padding:20px; color:var(--muted); font-size:0.9rem;">Cargando usuarios...</div>
+    </div>
+  </div>
+
+  <!-- CENTER: CONVERSATIONS -->
+  <div class="conversations-panel">
+    <div class="conv-header">
+      <h2>💬 Conversaciones</h2>
+      <p id="selected-user-name">Selecciona un usuario</p>
+    </div>
+    <div class="convs-list" id="convs-list">
+      <div class="convs-empty">Selecciona un usuario para ver sus conversaciones</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: USER DETAILS -->
+  <div class="details-panel">
+    <div class="details-header">
+      <div class="details-title">Detalles del Usuario</div>
+      <div class="details-actions">
+        <button class="btn-edit" onclick="editUserModal()">Editar</button>
+        <button class="btn-password" onclick="changePasswordModal()">Cambiar Pass</button>
+        <button class="btn-delete" onclick="deleteUserConfirm()">Eliminar</button>
+      </div>
+    </div>
+    <div class="details-content" id="details-content">
+      <div class="details-empty">Selecciona un usuario para ver sus detalles</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal-box">
+    <span class="modal-icon" id="modal-icon">⚠️</span>
+    <h3 class="modal-title" id="modal-title">Confirmar</h3>
+    <p class="modal-text" id="modal-text">¿Estás seguro?</p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-btn modal-btn-confirm" id="modal-confirm-btn" onclick="confirmAction()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="modal-overlay" id="edit-user-modal">
+  <div class="modal-box" style="width: 400px; padding: 30px;">
+    <button class="modal-close-btn" onclick="closeEditUserModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--muted);">✕</button>
+    <div style="margin-bottom: 25px;">
+      <h3 style="font-size: 1.2rem; color: var(--dark); margin-bottom: 8px;">✏️ Editar Usuario</h3>
+      <p style="font-size: 0.9rem; color: var(--muted);">Actualiza los datos del usuario</p>
+    </div>
+    <div id="edit-user-message"></div>
+    <form onsubmit="submitEditUser(event)" id="edit-user-form">
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Email</label>
+        <input type="email" id="edit-user-email" placeholder="nuevo@email.com" required style="width: 100%; padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none;">
+      </div>
+      <div style="display: flex; gap: 10px; margin-top: 25px;">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeEditUserModal()" style="flex: 1;">Cancelar</button>
+        <button type="submit" class="modal-btn modal-btn-confirm" id="edit-user-submit-btn" style="flex: 1;">Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- LOGOUT CONFIRMATION MODAL -->
+<div class="modal-overlay" id="logout-modal">
+  <div class="modal-box" style="width: 350px;">
+    <span class="modal-icon">👋</span>
+    <h3 class="modal-title">Cerrar sesión</h3>
+    <p class="modal-text">¿Estás seguro de que deseas cerrar sesión?</p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeLogoutModal()">Cancelar</button>
+      <button class="modal-btn modal-btn-confirm" onclick="confirmLogout()">Cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="change-password-modal">
+  <div class="modal-box" style="width: 400px; padding: 30px;">
+    <button class="modal-close-btn" onclick="closeChangePasswordModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--muted);">✕</button>
+    <div style="margin-bottom: 25px;">
+      <h3 style="font-size: 1.2rem; color: var(--dark); margin-bottom: 8px;">🔐 Cambiar Contraseña</h3>
+      <p style="font-size: 0.9rem; color: var(--muted);">Establece una nueva contraseña para el usuario</p>
+    </div>
+    <div id="change-password-message"></div>
+    <form onsubmit="submitChangePassword(event)" id="change-password-form">
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Nueva Contraseña</label>
+        <input type="password" id="change-password-input" placeholder="Mín. 8 caracteres con mayúsculas, números y caracteres especiales" required style="width: 100%; padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none;">
+        <div style="margin-top: 8px; font-size: 0.75rem; color: var(--muted);">
+          Debe incluir: mayúsculas, minúsculas, números y caracteres especiales (!@#$%)
+        </div>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--dark); margin-bottom: 6px;">Confirmar Contraseña</label>
+        <input type="password" id="confirm-change-password-input" placeholder="Repite la contraseña" required style="width: 100%; padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none;">
+      </div>
+      <div style="display: flex; gap: 10px; margin-top: 25px;">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeChangePasswordModal()" style="flex: 1;">Cancelar</button>
+        <button type="submit" class="modal-btn modal-btn-confirm" id="change-password-submit-btn" style="flex: 1;">Actualizar Contraseña</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const API_URL = "https://4ylr6wwnpg.execute-api.us-east-2.amazonaws.com";
+  const token = localStorage.getItem('access_token');
+  const isAdmin = localStorage.getItem('is_admin') === 'true';
+  const userEmail = localStorage.getItem('user_email');
+
+  let allUsers = [];
+  let filteredUsers = [];
+  let selectedUser = null;
+  let pendingAction = null;
+
+  // ── GUARD ────────────────────────────────────────
+  if (!token || !isAdmin) window.location.href = 'index.html';
+
+  // ── INIT ─────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('admin-email').textContent = userEmail;
+    loadUsers();
+  });
+
+  // ── LOAD USERS ───────────────────────────────────
+  async function loadUsers() {
+    try {
+      const res = await fetch(`${API_URL}/admin/users`, {
+        headers: { 'access_token': token }
+      });
+      const data = await res.json();
+      allUsers = data.users || [];
+      filteredUsers = [...allUsers];
+      renderUsers();
+    } catch (e) { console.error('Error cargando usuarios:', e); }
+  }
+
+  function renderUsers() {
+    const list = document.getElementById('users-list');
+    if (!filteredUsers.length) {
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">No se encontraron usuarios</div>';
+      return;
+    }
+
+    list.innerHTML = filteredUsers.map(u => `
+      <div class="user-item ${selectedUser?.id === u.id ? 'active' : ''}" onclick="selectUser('${u.id}', '${u.email}', '${u.username || ''}')">
+        <div class="user-item-email">${escHtml(u.email)}</div>
+        <div class="user-item-username">${u.username ? '👤 ' + escHtml(u.username) : 'Sin username'}</div>
+      </div>
+    `).join('');
+  }
+
+  function searchUsers() {
+    const query = document.getElementById('search-input').value.toLowerCase();
+    filteredUsers = allUsers.filter(u =>
+      u.email.toLowerCase().includes(query) ||
+      (u.username && u.username.toLowerCase().includes(query))
+    );
+    renderUsers();
+  }
+
+  // ── SELECT USER ──────────────────────────────────
+  async function selectUser(id, email, username) {
+    selectedUser = { id, email, username };
+    renderUsers();
+    document.getElementById('selected-user-name').textContent = `👤 ${escHtml(email)}`;
+    
+    loadConversations(id);
+    showUserDetails(id, email, username);
+  }
+
+  async function loadConversations(userId) {
+    try {
+      const res = await fetch(`${API_URL}/admin/conversations/user/${userId}`, {
+        headers: { 'access_token': token }
+      });
+      const data = await res.json();
+      renderConversations(data.conversations || []);
+    } catch (e) { console.error(e); }
+  }
+
+  function renderConversations(convs) {
+    const list = document.getElementById('convs-list');
+    if (!convs.length) {
+      list.innerHTML = '<div class="convs-empty">Sin conversaciones</div>';
+      return;
+    }
+
+    list.innerHTML = convs.map(c => `
+      <div class="conv-card">
+        <button class="conv-delete-btn" onclick="deleteConvConfirm(event, ${c.id})">🗑️</button>
+        <div class="conv-title">${escHtml(c.title || 'Sin título')}</div>
+        <div class="conv-date">${formatDate(c.created_at)}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── SHOW USER DETAILS ────────────────────────────
+  function showUserDetails(id, email, username) {
+    const user = allUsers.find(u => u.id === id);
+    if (!user) return;
+
+    const content = `
+      <div class="detail-section">
+        <h3>Información Principal</h3>
+        <div class="detail-field">
+          <label>Email:</label>
+          <value>${escHtml(email)}</value>
+        </div>
+        <div class="detail-field">
+          <label>Usuario:</label>
+          <value>${escHtml(username || 'N/A')}</value>
+        </div>
+        <div class="detail-field">
+          <label>Rol:</label>
+          <value>${user.role === 'admin' ? '👑 Administrador' : '👤 Usuario'}</value>
+        </div>
+      </div>
+      <div class="detail-section">
+        <h3>Estado</h3>
+        <div class="detail-field">
+          <label>Activo:</label>
+          <value>${user.is_active ? '✅ Sí' : '❌ No'}</value>
+        </div>
+        <div class="detail-field">
+          <label>Creado:</label>
+          <value>${formatDate(user.created_at)}</value>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('details-content').innerHTML = content;
+  }
+
+  // ── DELETE ACTIONS ───────────────────────────────
+  async function deleteConvConfirm(e, convId) {
+    e.stopPropagation();
+    pendingAction = { type: 'delete-conv', convId };
+    showModal('🗑️', '¿Eliminar conversación?', 'Esta acción no se puede deshacer.', 'Eliminar');
+  }
+
+  function deleteUserConfirm() {
+    if (!selectedUser) return;
+    pendingAction = { type: 'delete-user' };
+    showModal('⚠️', '¿Eliminar usuario?', `Este usuario y todos sus datos serán eliminados permanentemente.`, 'Eliminar');
+  }
+
+  async function confirmAction() {
+    if (!pendingAction) return;
+
+    const { type } = pendingAction;
+
+    if (type === 'delete-conv') {
+      const res = await fetch(`${API_URL}/admin/conversations/${pendingAction.convId}`, {
+        method: 'DELETE',
+        headers: { 'access_token': token }
+      });
+      if (res.ok) {
+        selectedUser && loadConversations(selectedUser.id);
+        closeModal();
+      }
+    } else if (type === 'delete-user') {
+      const res = await fetch(`${API_URL}/admin/users/${selectedUser.username}`, {
+        method: 'DELETE',
+        headers: { 'access_token': token }
+      });
+      if (res.ok) {
+        closeModal();
+        loadUsers();
+        selectedUser = null;
+        document.getElementById('details-content').innerHTML = '<div class="details-empty">Usuario eliminado</div>';
+      } else {
+        alert('Error al eliminar usuario');
+      }
+    } else if (type === 'update-user') {
+      const res = await fetch(`${API_URL}/admin/users/${selectedUser.username}`, {
+        method: 'PUT',
+        headers: { 
+          'content-type': 'application/json',
+          'access_token': token 
+        },
+        body: JSON.stringify(pendingAction.data)
+      });
+      if (res.ok) {
+        closeModal();
+        loadUsers();
+        selectUser(selectedUser.id, pendingAction.data.email || selectedUser.email, pendingAction.data.username || selectedUser.username);
+      } else {
+        const err = await res.json();
+        alert('Error: ' + (err.error || 'No se pudo actualizar'));
+      }
+    } else if (type === 'change-password') {
+      const res = await fetch(`${API_URL}/admin/users/${selectedUser.username}/pwd`, {
+        method: 'POST',
+        headers: { 
+          'content-type': 'application/json',
+          'access_token': token 
+        },
+        body: JSON.stringify({ new_password: pendingAction.password })
+      });
+      if (res.ok) {
+        closeModal();
+        alert('Contrasena actualizada correctamente');
+      } else {
+        const err = await res.json();
+        alert('Error: ' + (err.error || 'No se pudo cambiar la contrasena'));
+      }
+    }
+
+    pendingAction = null;
+  }
+
+  // ── MODAL FUNCTIONS ──────────────────────────────
+  function showModal(icon, title, text, confirmText) {
+    document.getElementById('modal-icon').textContent = icon;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-text').textContent = text;
+    document.getElementById('modal-confirm-btn').textContent = confirmText;
+    document.getElementById('modal-confirm').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-confirm').classList.remove('active');
+  }
+
+  function editUserModal() {
+    if (!selectedUser) {
+      alert('Selecciona un usuario primero');
+      return;
+    }
+
+    // Llenar los campos con datos actuales del usuario
+    document.getElementById('edit-user-email').value = selectedUser.email || '';
+    document.getElementById('edit-user-message').innerHTML = '';
+    
+    // Mostrar el modal
+    document.getElementById('edit-user-modal').classList.add('active');
+  }
+
+  function closeEditUserModal() {
+    document.getElementById('edit-user-modal').classList.remove('active');
+    document.getElementById('edit-user-form').reset();
+    document.getElementById('edit-user-message').innerHTML = '';
+    const btn = document.getElementById('edit-user-submit-btn');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Actualizar';
+    }
+  }
+
+  async function submitEditUser(event) {
+    event.preventDefault();
+    
+    if (!selectedUser) {
+      alert('Selecciona un usuario primero');
+      return;
+    }
+
+    const newEmail = document.getElementById('edit-user-email').value.trim();
+    const messageContainer = document.getElementById('edit-user-message');
+    const submitBtn = document.getElementById('edit-user-submit-btn');
+
+    // Validar que algo cambió
+    if (newEmail === selectedUser.email) {
+      messageContainer.innerHTML = '<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">No hay cambios que actualizar</div>';
+      return;
+    }
+
+    // Validar email
+    if (!newEmail) {
+      messageContainer.innerHTML = '<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">Por favor ingresa un email válido</div>';
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+      messageContainer.innerHTML = '<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">El email debe ser válido</div>';
+      return;
+    }
+
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Actualizando...';
+
+      const res = await fetch(`${API_URL}/admin/users/${selectedUser.username}`, {
+        method: 'PUT',
+        headers: { 
+          'content-type': 'application/json',
+          'access_token': token 
+        },
+        body: JSON.stringify({ email: newEmail })
+      });
+
+      if (res.ok) {
+        messageContainer.innerHTML = '<div class="modal-message success" style="background: #d4edda; color: #155724; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">✅ Usuario actualizado correctamente</div>';
+        setTimeout(() => {
+          closeEditUserModal();
+          loadUsers();
+          selectUser(selectedUser.id, newEmail);
+        }, 1500);
+      } else {
+        const err = await res.json();
+        messageContainer.innerHTML = `<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">❌ Error: ${err.error || 'No se pudo actualizar'}</div>`;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Actualizar';
+      }
+    } catch (error) {
+      messageContainer.innerHTML = `<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">❌ Error: ${error.message}</div>`;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Actualizar';
+    }
+  }
+
+  function changePasswordModal() {
+    if (!selectedUser) {
+      alert('Selecciona un usuario primero');
+      return;
+    }
+
+    document.getElementById('change-password-message').innerHTML = '';
+    document.getElementById('change-password-form').reset();
+    document.getElementById('change-password-modal').classList.add('active');
+  }
+
+  function closeChangePasswordModal() {
+    document.getElementById('change-password-modal').classList.remove('active');
+    document.getElementById('change-password-form').reset();
+    document.getElementById('change-password-message').innerHTML = '';
+    const btn = document.getElementById('change-password-submit-btn');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Actualizar Contraseña';
+    }
+  }
+
+  async function submitChangePassword(event) {
+    event.preventDefault();
+    
+    if (!selectedUser) {
+      alert('Selecciona un usuario primero');
+      return;
+    }
+
+    const newPass = document.getElementById('change-password-input').value;
+    const confirmPass = document.getElementById('confirm-change-password-input').value;
+    const messageContainer = document.getElementById('change-password-message');
+    const submitBtn = document.getElementById('change-password-submit-btn');
+
+    // Validaciones
+    if (newPass.length < 8) {
+      messageContainer.innerHTML = '<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">La contraseña debe tener mín. 8 caracteres</div>';
+      return;
+    }
+
+    if (newPass !== confirmPass) {
+      messageContainer.innerHTML = '<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">Las contraseñas no coinciden</div>';
+      return;
+    }
+
+    // Validar fortaleza
+    const hasUppercase = /[A-Z]/.test(newPass);
+    const hasLowercase = /[a-z]/.test(newPass);
+    const hasNumbers = /[0-9]/.test(newPass);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};:\'",.<>?/\\|`~]/.test(newPass);
+
+    if (!hasUppercase || !hasLowercase || !hasNumbers || !hasSpecial) {
+      let required = [];
+      if (!hasUppercase) required.push('mayúsculas (A-Z)');
+      if (!hasLowercase) required.push('minúsculas (a-z)');
+      if (!hasNumbers) required.push('números (0-9)');
+      if (!hasSpecial) required.push('caracteres especiales (!@#$%)');
+      messageContainer.innerHTML = `<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">Debe incluir: ${required.join(', ')}</div>`;
+      return;
+    }
+
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Actualizando...';
+
+      const res = await fetch(`${API_URL}/admin/users/${selectedUser.username}/pwd`, {
+        method: 'POST',
+        headers: { 
+          'content-type': 'application/json',
+          'access_token': token 
+        },
+        body: JSON.stringify({ new_password: newPass })
+      });
+
+      if (res.ok) {
+        messageContainer.innerHTML = '<div class="modal-message success" style="background: #d4edda; color: #155724; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">✅ Contraseña actualizada correctamente</div>';
+        setTimeout(() => {
+          closeChangePasswordModal();
+        }, 1500);
+      } else {
+        const err = await res.json();
+        messageContainer.innerHTML = `<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">❌ Error: ${err.error || 'No se pudo actualizar'}</div>`;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Actualizar Contraseña';
+      }
+    } catch (error) {
+      messageContainer.innerHTML = `<div class="modal-message error" style="background: #fde2e2; color: #c00; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 0.85rem;">❌ Error: ${error.message}</div>`;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Actualizar Contraseña';
+    }
+  }
+
+  // ── LOGOUT ───────────────────────────────────────
+  function handleAdminLogout() {
+    document.getElementById('logout-modal').classList.add('active');
+  }
+
+  function closeLogoutModal() {
+    document.getElementById('logout-modal').classList.remove('active');
+  }
+
+  function confirmLogout() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+  }
+
+  // ── HELPERS ──────────────────────────────────────
+  function escHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
+  }
+
+  function formatDate(date) {
+    if (!date) return '—';
+    const d = new Date(date);
+    return d.toLocaleDateString('es', { month: 'short', day: 'numeric', year: '2-digit' });
+  }
+</script>
+
+</body>
+</html>

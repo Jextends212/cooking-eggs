@@ -1,0 +1,104 @@
+# ========================
+# Python & Virtual Environments
+# ========================
+venv/
+env/
+ENV/
+.venv
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+*.egg
+.Python
+
+# ========================
+# AWS SAM Build
+# ========================
+.aws-sam/
+sam-build/
+samconfig.toml
+
+# ========================
+# Testing & Temporary Files
+# ========================
+test_*.py
+*_test.py
+quick_test.py
+*.test
+.pytest_cache/
+coverage/
+.coverage
+
+# ========================
+# Setup & Configuration Scripts (Local)
+# ========================
+setup_*.py
+create_*.py
+fix_*.py
+change_*.py
+verify_*.py
+list_*.py
+check_*.py
+deploy.ps1
+
+# ========================
+# Deployment & Build
+# ========================
+deployment/
+lambda_builds/
+*.zip
+dist/
+
+# ========================
+# Environment Variables & Secrets
+# ========================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+aws_credentials
+secrets.json
+
+# ========================
+# IDE & Editor
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.code-workspace
+
+# ========================
+# OS & System Files
+# ========================
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+
+# ========================
+# Documentation (Local/Temporary)
+# ========================
+NOTES.md
+TODO.md
+.notes/
+
+# ========================
+# Build & Deployment Info
+# ========================
+deployment_info_*.json
+build_info.json
+.aws-sam/build/
+
+# ========================
+# Logs
+# ========================
+*.log
+logs/
+node_modules/

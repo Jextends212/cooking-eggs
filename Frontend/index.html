@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥚Cooking Eggs — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yolk:   #F5A623;
+    --tomato: #E8442A;
+    --herb:   #2D6A4F;
+    --cream:  #FDF8F0;
+    --dark:   #1A1208;
+    --warm:   #F7E9D0;
+    --muted:  #8B7355;
+    --white:  #FFFFFF;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── LEFT PANEL ─────────────────────────────── */
+  .left-panel {
+    flex: 1;
+    background: var(--dark);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+    overflow: hidden;
+  }
+
+  .left-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(245,166,35,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(232,68,42,0.1) 0%, transparent 50%);
+  }
+
+  .food-bg {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    opacity: 0.06;
+    font-size: 2.5rem;
+    pointer-events: none;
+  }
+
+  .food-bg span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: floatEmoji 8s ease-in-out infinite;
+  }
+
+  .food-bg span:nth-child(odd)  { animation-delay: -4s; }
+  .food-bg span:nth-child(3n)   { animation-delay: -2s; }
+
+  @keyframes floatEmoji {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50%     { transform: translateY(-10px) rotate(5deg); }
+  }
+
+  .brand { position: relative; z-index: 1; }
+
+  .brand-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+    animation: wiggle 3s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0%,100% { transform: rotate(-5deg); }
+    50%     { transform: rotate(5deg); }
+  }
+
+  .brand h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .brand h1 span { color: var(--yolk); font-style: italic; }
+
+  .brand p {
+    color: rgba(255,255,255,0.5);
+    font-size: 1.05rem;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 380px;
+  }
+
+  .features {
+    position: relative;
+    z-index: 1;
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.95rem;
+  }
+
+  .feature-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: rgba(245,166,35,0.15);
+    border: 1px solid rgba(245,166,35,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  /* ── RIGHT PANEL ────────────────────────────── */
+  .right-panel {
+    width: min(480px, 100%);
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 50px;
+    position: relative;
+    overflow-y: auto;
+    max-height: 100vh;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.1) transparent;
+  }
+
+  .right-panel::-webkit-scrollbar { width: 4px; }
+  .right-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+
+  .right-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 4px;
+    background: linear-gradient(90deg, var(--yolk), var(--tomato));
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--warm);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--white);
+    color: var(--dark);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .form-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+
+  .form-subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+
+  .input-group { margin-bottom: 16px; }
+
+  .input-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .input-wrapper { position: relative; }
+
+  .input-wrapper span {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+
+  .input-wrapper input {
+    width: 100%;
+    padding: 13px 14px 13px 42px;
+    border: 1.5px solid #E8E0D5;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--dark);
+    background: var(--cream);
+    transition: all 0.2s;
+    outline: none;
+  }
+
+  .input-wrapper input:focus {
+    border-color: var(--yolk);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.1);
+  }
+
+  .forgot-link {
+    text-align: right;
+    margin-top: -8px;
+    margin-bottom: 16px;
+  }
+
+  .forgot-link a {
+    font-size: 0.83rem;
+    color: var(--yolk);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .forgot-link a:hover { text-decoration: underline; }
+
+  .btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--yolk) 0%, var(--tomato) 100%);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--white);
+    cursor: pointer;
+    transition: all 0.25s;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover::after  { background: rgba(255,255,255,0.1); }
+  .btn-primary:active        { transform: scale(0.98); }
+  .btn-primary:disabled      { opacity: 0.7; cursor: not-allowed; }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1.5px solid #E8E0D5;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+
+  .btn-secondary:hover { border-color: var(--yolk); color: var(--dark); }
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    display: none;
+    line-height: 1.4;
+  }
+
+  .alert.error   { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; display: block; }
+  .alert.success { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; display: block; }
+  .alert.loading { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; display: block; }
+
+  .form-panel { display: none; }
+  .form-panel.active { display: block; animation: fadeUp 0.3s ease both; }
+
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.88rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .back-btn:hover { color: var(--dark); }
+
+  .steps {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .step {
+    flex: 1;
+    height: 3px;
+    background: #E8E0D5;
+    border-radius: 2px;
+    transition: background 0.3s;
+  }
+
+  .step.active { background: var(--yolk); }
+  .step.done   { background: var(--herb); }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  @keyframes spin    { to { transform: rotate(360deg); } }
+  @keyframes fadeUp  {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    body             { flex-direction: column; overflow: auto; }
+    .left-panel      { padding: 36px 24px; min-height: auto; }
+    .features        { display: none; }
+    .brand h1        { font-size: 2rem; }
+    .brand-icon      { font-size: 3rem; margin-bottom: 12px; }
+    .right-panel     { width: 100%; padding: 36px 24px 48px; height: 100vh; overflow-y: auto !important; }
+    .form-title      { font-size: 1.5rem; }
+  }
+  @media (max-height: 700px) {
+  .right-panel {
+    justify-content: flex-start;
+    padding-top: 30px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="food-bg">
+    🍳🥚🧄🍅🥘🍜🥗🫕🥩🧅🍋🌿🥕🍄🧀🥑🍞🌶️🍯🥦🧆🍲🫒🥐🍖🌽🥜🥓🥨🍆🍓
+  </div>
+  <div class="brand">
+    <span class="brand-icon">🍳</span>
+    <h1>Cooking<br><span>Eggs</span></h1>
+    <p>Tu asistente culinario personal 👨‍🍳</p>
+    <p>Recetas, consejos y magia en la cocina — Todo con inteligencia artificial...</p>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">🤖</div>
+      <span>Tu cheff personal responde tus preguntas al instante</span>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💾</div>
+      <span>¡Guarda tus recetas favoritas en tu perfil para prepararlas cuando quieras! </span>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">👩‍🎓</div>
+      <span>Aprende a cocinar con nosotros y accede a recetas únicas y deliciosas</span>
+      
+    </div>
+  </div>
+</div>
+<br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+
+  <div class="tabs" id="main-tabs">
+    <button class="tab active" onclick="switchTab('login')">Iniciar sesión</button>
+    <button class="tab" onclick="switchTab('register')">Registrarse</button>
+  </div>
+
+  <div id="alert-box" class="alert"></div>
+
+  <!-- LOGIN -->
+  <div id="panel-login" class="form-panel active">
+    <h2 class="form-title">¡Bienvenido de vuelta! 👋</h2>
+    <p class="form-subtitle">Ingresa a tu cocina personal</p>
+
+    <div class="input-group">
+      <label>Usuario</label>
+      <div class="input-wrapper">
+        <span>👨‍🍳</span>
+        <input type="text" id="login-username" placeholder="tu-usuario" autocomplete="username">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Contraseña</label>
+      <div class="input-wrapper">
+        <span>🔒</span>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+    </div>
+
+    <div class="forgot-link">
+      <a onclick="switchTab('forgot')">¿Olvidaste tu contraseña?</a>
+    </div>
+
+    <button class="btn-primary" id="btn-login" onclick="handleLogin()">
+      Entrar a la cocina 🍳
+    </button>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="panel-register" class="form-panel">
+    <h2 class="form-title">Crea tu cuenta 🥚</h2>
+    <p class="form-subtitle">Únete a la comunidad de chefs</p>
+
+    <div class="input-group">
+      <label>Nombre completo</label>
+      <div class="input-wrapper">
+        <span>✨</span>
+        <input type="text" id="reg-name" placeholder="Gordon Ramsay">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Usuario</label>
+      <div class="input-wrapper">
+        <span>👨‍🍳</span>
+        <input type="text" id="reg-username" placeholder="chef-gordon" autocomplete="username">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Correo electrónico</label>
+      <div class="input-wrapper">
+        <span>📧</span>
+        <input type="email" id="reg-email" placeholder="chef@ejemplo.com" autocomplete="email">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Contraseña</label>
+      <div class="input-wrapper">
+        <span>🔒</span>
+        <input type="password" id="reg-password" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-register" onclick="handleRegister()">
+      Crear cuenta 🚀
+    </button>
+  </div>
+
+  <!-- FORGOT — PASO 1 -->
+  <div id="panel-forgot" class="form-panel">
+    <button class="back-btn" onclick="switchTab('login')">← Volver al login</button>
+    <div class="steps">
+      <div class="step active"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+    </div>
+    <h2 class="form-title">¿Olvidaste tu contraseña? 🔑</h2>
+    <p class="form-subtitle">Te enviaremos un código a tu correo registrado</p>
+
+    <div class="input-group" style="margin-top:20px">
+      <label>Email registrado</label>
+      <div class="input-wrapper">
+        <span>📧</span>
+        <input type="text" id="forgot-username" placeholder="tu@email.com">
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-forgot" onclick="handleForgotPassword()">
+      Enviar código 📧
+    </button>
+    <button class="btn-secondary" onclick="switchTab('login')">Cancelar</button>
+  </div>
+
+  <!-- FORGOT — PASO 2: código + nueva contraseña -->
+  <div id="panel-reset" class="form-panel">
+    <button class="back-btn" onclick="switchTab('forgot')">← Volver</button>
+    <div class="steps">
+      <div class="step done"></div>
+      <div class="step active"></div>
+      <div class="step"></div>
+    </div>
+    <h2 class="form-title">Ingresa el código 📬</h2>
+    <p class="form-subtitle">Revisa tu correo e ingresa el código recibido</p>
+
+    <div class="input-group" style="margin-top:20px">
+      <label>Código de verificación</label>
+      <div class="input-wrapper">
+        <span>🔢</span>
+        <input type="text" id="reset-code" placeholder="123456" maxlength="6" autocomplete="one-time-code">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Nueva contraseña</label>
+      <div class="input-wrapper">
+        <span>🔒</span>
+        <input type="password" id="reset-password" placeholder="Mínimo 8 caracteres">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Confirmar contraseña</label>
+      <div class="input-wrapper">
+        <span>🔒</span>
+        <input type="password" id="reset-password-confirm" placeholder="Repite la contraseña">
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-reset" onclick="handleResetPassword()">
+      Cambiar contraseña ✅
+    </button>
+  </div>
+
+  <!-- FORGOT — PASO 3: éxito -->
+  <div id="panel-success" class="form-panel">
+    <div style="text-align:center; padding: 20px 0">
+      <div style="font-size:4rem; margin-bottom:16px; animation: wiggle 2s infinite">🎉</div>
+      <h2 class="form-title" style="text-align:center">¡Contraseña actualizada!</h2>
+      <p class="form-subtitle" style="text-align:center; margin-bottom:32px">Ya puedes iniciar sesión con tu nueva contraseña</p>
+      <button class="btn-primary" onclick="switchTab('login')" style="max-width:280px; margin:0 auto; display:block">
+        Ir al login 🍳
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const API_URL = "https://4ylr6wwnpg.execute-api.us-east-2.amazonaws.com";
+  let forgotUsername = '';
+
+  function switchTab(tab) {
+    ['login','register','forgot','reset','success'].forEach(p =>
+      document.getElementById(`panel-${p}`).classList.remove('active')
+    );
+    document.getElementById(`panel-${tab}`).classList.add('active');
+    hideAlert();
+
+    const isMain = ['login','register'].includes(tab);
+    document.getElementById('main-tabs').style.display = isMain ? 'flex' : 'none';
+
+    if (isMain) {
+      document.querySelectorAll('.tab').forEach((t, i) =>
+        t.classList.toggle('active', (i === 0) === (tab === 'login'))
+      );
+    }
+  }
+
+  function showAlert(msg, type = 'error') {
+    const box = document.getElementById('alert-box');
+    box.textContent = msg;
+    box.className = `alert ${type}`;
+  }
+
+  function hideAlert() {
+    document.getElementById('alert-box').className = 'alert';
+  }
+
+  function setLoading(btnId, loading, defaultText) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading ? `<span class="spinner"></span> Cargando...` : defaultText;
+  }
+
+  async function handleLogin() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    if (!username || !password) { showAlert('Por favor completa todos los campos 🥚'); return; }
+
+    setLoading('btn-login', true);
+    showAlert('Verificando credenciales...', 'loading');
+
+    try {
+      const res  = await fetch(`${API_URL}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', username, password })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.access_token) {
+        localStorage.setItem('access_token',  data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token || '');
+        localStorage.setItem('id_token',      data.id_token || '');
+        localStorage.setItem('username',      username);
+        localStorage.setItem('user_name',     data.name || username);
+        localStorage.setItem('user_email',    data.email || '');
+        localStorage.setItem('is_admin',      data.is_admin ? 'true' : 'false');
+        showAlert('¡Bienvenido! Redirigiendo... 🍳', 'success');
+        setTimeout(() => { window.location.href = data.is_admin ? 'admin.html' : 'chat.html'; }, 800);
+      } else if (data.challenge === 'NEW_PASSWORD_REQUIRED') {
+        localStorage.setItem('challenge_session',  data.session);
+        localStorage.setItem('challenge_username', data.username);
+        forgotUsername = data.username;
+        showAlert('Debes cambiar tu contraseña temporal ⚠️', 'loading');
+        setTimeout(() => switchTab('reset'), 1000);
+      } else {
+        showAlert(data.error || 'Credenciales incorrectas ❌');
+        setLoading('btn-login', false, 'Entrar a la cocina 🍳');
+      }
+    } catch {
+      showAlert('Error de conexión. Intenta de nuevo 🔌');
+      setLoading('btn-login', false, 'Entrar a la cocina 🍳');
+    }
+  }
+
+  async function handleRegister() {
+    const name     = document.getElementById('reg-name').value.trim();
+    const username = document.getElementById('reg-username').value.trim();
+    const email    = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+
+    if (!name || !username || !email || !password) { showAlert('Por favor completa todos los campos 🥚'); return; }
+    
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) { showAlert('Por favor ingresa un email válido 📧'); return; }
+    
+    if (password.length < 8) { showAlert('La contraseña debe tener mínimo 8 caracteres 🔒'); return; }
+
+    setLoading('btn-register', true);
+    showAlert('Creando tu cuenta de chef...', 'loading');
+
+    try {
+      const res  = await fetch(`${API_URL}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'register', name, username, email, password })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        showAlert('¡Cuenta creada! Ahora inicia sesión 🎉', 'success');
+        setTimeout(() => switchTab('login'), 1500);
+      } else {
+        showAlert(data.error || 'Error al crear la cuenta ❌');
+      }
+    } catch {
+      showAlert('Error de conexión. Intenta de nuevo 🔌');
+    } finally {
+      setLoading('btn-register', false, 'Crear cuenta 🚀');
+    }
+  }
+
+  async function handleForgotPassword() {
+    const username = document.getElementById('forgot-username').value.trim();
+    if (!username) { showAlert('Ingresa tu usuario 👨‍🍳'); return; }
+
+    setLoading('btn-forgot', true);
+    showAlert('Enviando código...', 'loading');
+
+    try {
+      const res  = await fetch(`${API_URL}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'forgot_password', username })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        forgotUsername = username;
+        showAlert('Código enviado a tu correo 📧', 'success');
+        setTimeout(() => switchTab('reset'), 1000);
+      } else {
+        showAlert(data.error || 'No se pudo enviar el código ❌');
+      }
+    } catch {
+      showAlert('Error de conexión. Intenta de nuevo 🔌');
+    } finally {
+      setLoading('btn-forgot', false, 'Enviar código 📧');
+    }
+  }
+
+  async function handleResetPassword() {
+    const code     = document.getElementById('reset-code').value.trim();
+    const password = document.getElementById('reset-password').value;
+    const confirm  = document.getElementById('reset-password-confirm').value;
+
+    if (!code || !password || !confirm) { showAlert('Por favor completa todos los campos 🥚'); return; }
+    if (password !== confirm)           { showAlert('Las contraseñas no coinciden ❌'); return; }
+    if (password.length < 8)           { showAlert('La contraseña debe tener mínimo 8 caracteres 🔒'); return; }
+
+    setLoading('btn-reset', true);
+    showAlert('Actualizando contraseña...', 'loading');
+
+    try {
+      const res  = await fetch(`${API_URL}/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset_password', username: forgotUsername, code, new_password: password })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        hideAlert();
+        switchTab('success');
+      } else {
+        showAlert(data.error || 'Error al cambiar la contraseña ❌');
+        setLoading('btn-reset', false, 'Cambiar contraseña ✅');
+      }
+    } catch {
+      showAlert('Error de conexión. Intenta de nuevo 🔌');
+      setLoading('btn-reset', false, 'Cambiar contraseña ✅');
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const active = document.querySelector('.form-panel.active')?.id;
+    if (active === 'panel-login')    handleLogin();
+    if (active === 'panel-register') handleRegister();
+    if (active === 'panel-forgot')   handleForgotPassword();
+    if (active === 'panel-reset')    handleResetPassword();
+  });
+
+  if (localStorage.getItem('access_token')) {
+    window.location.href = localStorage.getItem('is_admin') === 'true' ? 'admin.html' : 'chat.html';
+  }
+</script>
+</body>
+</html>
