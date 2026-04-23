@@ -68,6 +68,7 @@ def disable_cloudfront():
         # Obtener distribución
         dist = cloudfront.get_distribution(Id=CLOUDFRONT_ID)
         config = dist['Distribution']['DistributionConfig']
+        etag = dist['ETag']  # Obtener ETag para la actualización
         
         # Cambiar Enabled a False
         if config.get('Enabled'):
@@ -76,7 +77,8 @@ def disable_cloudfront():
             
             response = cloudfront.update_distribution(
                 Id=CLOUDFRONT_ID,
-                DistributionConfig=config
+                DistributionConfig=config,
+                IfMatch=etag  # Pasar ETag correcto
             )
             
             print(f"   ✅ CloudFront disabled")
