@@ -213,13 +213,14 @@ Resources:
         AllowOrigins:
           - "*"
         AllowHeaders:
-          - "content-type"
-          - "access-token"
-          - "access_token"
-          - "authorization"
+          - "*"
         AllowMethods:
           - GET
           - POST
           - PUT
           - DELETE
           - OPTIONS
+        MaxAge: 600
+        ExposeHeaders:
+          - Content-Type
+          - Authorization
